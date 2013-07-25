@@ -107,10 +107,29 @@ class Git(object):
 if __name__ == "__main__":
     symlink_key_file()
     cfg = parse_yaml()
-    g = Git("git@github.com:iPlantCollaborativeOpenSource/Donkey.git")
-    g.clone("donkey")
-    first_dir = os.getcwd()
-    os.chdir("donkey")
-    g.merge("dev", "donkzilla")
-    g.push("donkzilla")
-    os.chdir(first_dir)
+
+    for proj in cfg['projects']:
+        proj_name = proj['name']
+        proj_ref = proj['refspec']
+
+        g = Git(proj_ref)
+        g.clone(proj_name)
+        first_dir = os.getcwd()
+        os.chdir(proj_name)
+
+        if proj.has_key('merge'):
+            merge_from = proj['merge']['from']
+            merge_to = proj['merge']['to']
+            g.merge(merge_from, merge_to)
+            #g.push(merge_to)
+
+        os.chdir(first_dir)
+
+
+#    g = Git("git@github.com:iPlantCollaborativeOpenSource/Donkey.git")
+#    g.clone("donkey")
+#    first_dir = os.getcwd()
+#    os.chdir("donkey")
+#    g.merge("dev", "donkzilla")
+#    g.push("donkzilla")
+#    os.chdir(first_dir)
