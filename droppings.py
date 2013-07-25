@@ -25,9 +25,12 @@ def symlink_key_file(keyfile="/vagrant/id_rsa"):
     allows git to run without requiring the user to enter a password.
     Well, potentially at least."""
     if not os.path.exists(keyfile):
-        raise IOError("ERROR: %s does not exist." % keyfile)
+        raise IOError("%s does not exist." % keyfile)
 
     symlink_path = os.path.expanduser("~/.ssh/%s" % os.path.basename(keyfile))
+
+    if not os.access(os.path.dirname(symlink_path), os.W_OK):
+        raise IOError(os.path.dirname(symlink_path) + " is not writeable.")
 
     if not os.path.exists(symlink_path):
         os.symlink(pubfile, symlink_path)
@@ -39,6 +42,9 @@ def parse_yaml(yaml_path="/vagrant/repos.yaml"):
 
     if not os.path.exists(full_path):
         raise IOError(full_path + " does not exist.")
+
+    if not os.access(full_path, os.R_OK):
+        raise IOError(full_path + " is not readable.")
 
     return yaml.load(open(full_path, 'r'))
 
