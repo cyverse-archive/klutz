@@ -6,8 +6,8 @@ import yaml
 from subprocess import call
 
 def exec_cmd(cmd, good_status=0):
-    """Executes the 'cmd' list and returns the return value. Exits on a non-zero
-    exit status. Yes, that's evil and will probably change."""
+    """Executes the 'cmd' list and returns the return value. Exits on a
+    non-zero exit status. Yes, that's evil and will probably change."""
     print "-"*80
     printable_cmd = " ".join(cmd)
     print "Command: " + printable_cmd
@@ -15,7 +15,8 @@ def exec_cmd(cmd, good_status=0):
 
     if status != good_status:
         sys.__stderr__.write(
-            "ERROR: '%s' exited with a status of %i\n" % (printable_cmd, status)
+            "ERROR: '%s' exited with a status of %i\n" %
+                (printable_cmd, status)
         )
         sys.exit(status)
     else:
@@ -95,7 +96,7 @@ class Git(object):
         return exec_cmd(["git", "push", repo, push_branch])
 
 if __name__ == "__main__":
-    symlink_pub_file()
+    symlink_key_file()
     g = Git("git@github.com:iPlantCollaborativeOpenSource/Donkey.git")
     g.clone("donkey")
     first_dir = os.getcwd()
