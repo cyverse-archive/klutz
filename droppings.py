@@ -15,7 +15,7 @@ def exec_cmd(cmd, good_status=0):
 
     if status != good_status:
         raise IOError(
-            "ERROR: '%s' exited with a status of %i" % (printable_cmd, status)
+            "'%s' exited with a status of %i" % (printable_cmd, status)
         )
     else:
         return status
