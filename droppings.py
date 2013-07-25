@@ -34,11 +34,13 @@ def symlink_key_file(keyfile="/vagrant/id_rsa"):
     else:
         print symlink_path + " already exists, not symlinking."
 
-def parse_yaml(yaml_path="repos.yaml"):
+def parse_yaml(yaml_path="/vagrant/repos.yaml"):
     full_path = os.path.abspath(yaml_path)
 
     if not os.path.exists(full_path):
         raise IOError(full_path + " does not exist.")
+
+    return yaml.load(open(full_path, 'r'))
 
 class Git(object):
     """ Very basic wrapper class for git operations."""
@@ -98,6 +100,7 @@ class Git(object):
 
 if __name__ == "__main__":
     symlink_key_file()
+    cfg = parse_yaml()
     g = Git("git@github.com:iPlantCollaborativeOpenSource/Donkey.git")
     g.clone("donkey")
     first_dir = os.getcwd()
