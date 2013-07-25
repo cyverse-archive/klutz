@@ -2,6 +2,7 @@
 
 import os, sys
 import os.path
+import argparse
 import yaml
 from subprocess import call
 
@@ -24,6 +25,7 @@ def symlink_key_file(keyfile="/vagrant/id_rsa"):
     """ Symlinks 'pubfile' (/vagrant/id_rsa by default) to ~/.ssh/. This
     allows git to run without requiring the user to enter a password.
     Well, potentially at least."""
+    print "Attempting to symlink", keyfile
     if not os.path.exists(keyfile):
         raise IOError("%s does not exist." % keyfile)
 
@@ -33,7 +35,7 @@ def symlink_key_file(keyfile="/vagrant/id_rsa"):
         raise IOError(os.path.dirname(symlink_path) + " is not writeable.")
 
     if not os.path.exists(symlink_path):
-        os.symlink(pubfile, symlink_path)
+        os.symlink(keyfile, symlink_path)
     else:
         print symlink_path + " already exists, not symlinking."
 
@@ -47,6 +49,38 @@ def parse_yaml(yaml_path="/vagrant/repos.yaml"):
         raise IOError(full_path + " is not readable.")
 
     return yaml.load(open(full_path, 'r'))
+
+def parse_command_line():
+    p = argparse.ArgumentParser(description="Creates code drops.")
+    p.add_argument(
+        '-c', '--config', default="/vagrant/repos.yaml",
+        help="Path to the configuration file."
+    )
+    p.add_argument(
+        '-k', '--keyfile', default="/vagrant/id_rsa",
+        help="Path to private key file for git."
+    )
+    p.add_argument(
+        '--merge', dest='merge', action='store_true',
+        help="Turns on merging."
+    )
+    p.add_argument(
+        '--no-merge', dest='merge', action='store_false',
+        help="Turns off merging."
+    )
+    p.add_argument(
+        '--push', dest='push', action='store_true',
+        help="Turns on pushing."
+    )
+    p.add_argument(
+        '--no-push', dest='push', action='store_false',
+        help="Turns off pushing after tagging and merging."
+    )
+    p.add_argument(
+        '--tag', help="What to tag the repos with."
+    )
+    p.set_defaults(push=True, merge=True)
+    return p.parse_args()
 
 class Git(object):
     """ Very basic wrapper class for git operations."""
@@ -91,6 +125,12 @@ class Git(object):
         self.pull(to_branch, repo=repo)
         return exec_cmd(["git", "merge", from_branch])
 
+    def tag(self, tag_branch, tag):
+        """Does a git tag of tag_branch with tag. Checks out tag_branch.
+        Returns the exit code of the tag command."""
+        self.checkout(tag_branch)
+        return exec_cmd(["git", "tag", "-a", tag, "-m", tag])
+
     def fetch(self):
         """Does a git fetch for the repo. Returns the exit code
         of the git fetch command."""
@@ -105,10 +145,12 @@ class Git(object):
         return exec_cmd(["git", "push", repo, push_branch])
 
 if __name__ == "__main__":
-    symlink_key_file()
-    cfg = parse_yaml()
+    options = parse_command_line()
+    symlink_key_file(keyfile=options.keyfile)
+    cfg = parse_yaml(yaml_path=options.config)
 
     for proj in cfg['projects']:
+        print "="*80
         proj_name = proj['name']
         proj_ref = proj['refspec']
 
@@ -117,19 +159,16 @@ if __name__ == "__main__":
         first_dir = os.getcwd()
         os.chdir(proj_name)
 
-        if proj.has_key('merge'):
+        if proj.has_key('merge') and options.merge:
             merge_from = proj['merge']['from']
             merge_to = proj['merge']['to']
             g.merge(merge_from, merge_to)
-            #g.push(merge_to)
+
+        if options.tag and options.merge and proj.has_key('merge'):
+            g.tag(proj['merge']['to'], options.tag)
+
+        if options.push:
+            g.push(merge_to)
 
         os.chdir(first_dir)
 
-
-#    g = Git("git@github.com:iPlantCollaborativeOpenSource/Donkey.git")
-#    g.clone("donkey")
-#    first_dir = os.getcwd()
-#    os.chdir("donkey")
-#    g.merge("dev", "donkzilla")
-#    g.push("donkzilla")
-#    os.chdir(first_dir)
