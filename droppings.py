@@ -14,11 +14,9 @@ def exec_cmd(cmd, good_status=0):
     status = call(cmd, stdout=sys.__stdout__, stderr=sys.__stderr__)
 
     if status != good_status:
-        sys.__stderr__.write(
-            "ERROR: '%s' exited with a status of %i\n" %
-                (printable_cmd, status)
+        raise IOError(
+            "ERROR: '%s' exited with a status of %i" % (printable_cmd, status)
         )
-        sys.exit(status)
     else:
         return status
 
@@ -27,10 +25,7 @@ def symlink_key_file(keyfile="/vagrant/id_rsa"):
     allows git to run without requiring the user to enter a password.
     Well, potentially at least."""
     if not os.path.exists(keyfile):
-        sys.__stderr__.write(
-            "ERROR: %s does not exist." % keyfile
-        )
-        sys.exit(1)
+        raise IOError("ERROR: %s does not exist." % keyfile)
 
     symlink_path = os.path.expanduser("~/.ssh/%s" % os.path.basename(keyfile))
 
@@ -38,6 +33,12 @@ def symlink_key_file(keyfile="/vagrant/id_rsa"):
         os.symlink(pubfile, symlink_path)
     else:
         print symlink_path + " already exists, not symlinking."
+
+def parse_yaml(yaml_path="repos.yaml"):
+    full_path = os.path.abspath(yaml_path)
+
+    if not os.path.exists(full_path):
+        raise IOError(full_path + " does not exist.")
 
 class Git(object):
     """ Very basic wrapper class for git operations."""
