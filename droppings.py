@@ -19,6 +19,21 @@ def exec_cmd(cmd, good_status=0):
     else:
         return status
 
+def symlink_pub_file(pubfile="/vagrant/id_rsa"):
+    if not os.path.exists(pubfile):
+        sys.__stderr__.write(
+            "ERROR: %s does not exist." % pubfile
+        )
+        sys.exit(1)
+
+    symlink_path = os.path.expanduser("~/.ssh/%s" % os.path.basename(pubfile))
+    print symlink_path
+
+    if not os.path.exists(symlink_path):
+        os.symlink(pubfile, symlink_path)
+    else:
+        print symlink_path + " already exists, not symlinking."
+
 class Git(object):
     def __init__(self, refspec):
         self.refspec = refspec
@@ -53,6 +68,7 @@ class Git(object):
         return exec_cmd(["git", "push", repo, push_branch])
 
 if __name__ == "__main__":
+    symlink_pub_file()
     g = Git("git@github.com:iPlantCollaborativeOpenSource/Donkey.git")
     g.clone("donkey")
     first_dir = os.getcwd()
