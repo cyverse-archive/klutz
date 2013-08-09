@@ -19,3 +19,7 @@
 *~
 \#*
 /id_rsa*
+parser.out
+parsetab.py
+parsetab.pyc
+.vagrant/
