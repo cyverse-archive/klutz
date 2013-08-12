@@ -144,10 +144,11 @@ class Git(object):
         self.checkout(push_branch)
         return exec_cmd(["git", "push", repo, push_branch])
 
-if __name__ == "__main__":
-    options = parse_command_line()
+def main(options, cfg):
+    """Contains the main logic of the application. 'options' is the
+    object returned by parse_command_line() and 'cfg' should be the
+    object returned after parsing the yaml config file."""
     symlink_key_file(keyfile=options.keyfile)
-    cfg = parse_yaml(yaml_path=options.config)
 
     for proj in cfg['projects']:
         print "="*80
@@ -171,4 +172,11 @@ if __name__ == "__main__":
             g.push(merge_to)
 
         os.chdir(first_dir)
+
+if __name__ == "__main__":
+    options = parse_command_line()
+    cfg = parse_yaml(yaml_path=options.config)
+    main(options, cfg)
+
+
 
