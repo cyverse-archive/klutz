@@ -5,6 +5,9 @@ import os.path
 import argparse
 import yaml
 from subprocess import call
+import project_data as pd
+
+import pprint
 
 def exec_cmd(cmd, good_status=0):
     """Executes the 'cmd' list and returns the return value. Exits on a
@@ -87,7 +90,7 @@ def parse_command_line():
         '--no-build', dest='build', action='store_false',
         help="Turns off building."
     )
-    p.set_defaults(push=True, merge=True)
+    p.set_defaults(push=True, merge=True, build=True)
     return p.parse_args()
 
 class Git(object):
@@ -179,12 +182,38 @@ def merge_and_tag(options, cfg):
 
         os.chdir(first_dir)
 
+def info_for(proj):
+    """Obtains the details for a project."""
+    proj_name = proj['name']
+
+    first_dir = os.getcwd()
+    os.chdir(proj_name)
+
+    if os.path.exists('project.clj'):
+        proj_info = pd.LeinProjectData('project.clj')
+    elif os.path.exists('pom.xml'):
+        proj_info = pd.MvnProjectData('pom.xml')
+    else:
+        proj_info = pd.ProjectData(proj_name, proj_name, '', [])
+
+    os.chdir(first_dir)
+
+    return proj_info
+
+def build(cfg):
+    """Builds all of the repositories in the list of repositories. 'cfg'
+    is the object returned after parsing the yaml config file."""
+    proj_info = {proj['name']:info_for(proj) for proj in cfg['projects']}
+    pprint.pprint(proj_info)
+
 def main(options, cfg):
     """Contains the main logic of the application. 'options' is the
     object returned by parse_command_line() and 'cfg' should be the
     object returned after parsing the yaml config file."""
     symlink_key_file(keyfile=options.keyfile)
     merge_and_tag(options, cfg)
+    if options.build:
+        build(cfg)
 
 if __name__ == "__main__":
     options = parse_command_line()
