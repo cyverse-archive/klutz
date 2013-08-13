@@ -79,6 +79,14 @@ def parse_command_line():
     p.add_argument(
         '--tag', help="What to tag the repos with."
     )
+    p.add_argument(
+        '--build', dest='build', action='store_true',
+        help="Turns on building."
+    )
+    p.add_argument(
+        '--no-build', dest='build', action='store_false',
+        help="Turns off building."
+    )
     p.set_defaults(push=True, merge=True)
     return p.parse_args()
 
@@ -144,12 +152,10 @@ class Git(object):
         self.checkout(push_branch)
         return exec_cmd(["git", "push", repo, push_branch])
 
-def main(options, cfg):
-    """Contains the main logic of the application. 'options' is the
+def merge_and_tag(options, cfg):
+    """Performs all merging and tagging operations. 'options' is the
     object returned by parse_command_line() and 'cfg' should be the
     object returned after parsing the yaml config file."""
-    symlink_key_file(keyfile=options.keyfile)
-
     for proj in cfg['projects']:
         print "="*80
         proj_name = proj['name']
@@ -173,10 +179,14 @@ def main(options, cfg):
 
         os.chdir(first_dir)
 
+def main(options, cfg):
+    """Contains the main logic of the application. 'options' is the
+    object returned by parse_command_line() and 'cfg' should be the
+    object returned after parsing the yaml config file."""
+    symlink_key_file(keyfile=options.keyfile)
+    merge_and_tag(options, cfg)
+
 if __name__ == "__main__":
     options = parse_command_line()
     cfg = parse_yaml(yaml_path=options.config)
     main(options, cfg)
-
-
-
