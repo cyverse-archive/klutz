@@ -2,6 +2,7 @@
 
 import edn_format
 import pprint
+import xml.etree.ElementTree as ET
 
 def slurp(filename):
     with open(filename, 'r') as f:
@@ -82,5 +83,23 @@ class LeinProjectData(ProjectData):
         self.version = data[2]
         self.dependencies = self.extract_dependencies(data)
 
-pd = LeinProjectData("/Users/dennis/src/iplant/ua/heuristomancer/project.clj")
-print pd
+class MvnProjectData(ProjectData):
+    def ns_tag(self, tag):
+        return str(ET.QName('http://maven.apache.org/POM/4.0.0', tag))
+
+    def build_dependency(self, dep):
+        group_id = dep.find(self.ns_tag('groupId')).text
+        artifact_id = dep.find(self.ns_tag('artifactId')).text
+        version = dep.find(self.ns_tag('version')).text
+        return Dependency(group_id, artifact_id, version)
+
+    def __init__(self, filename):
+        tree = ET.parse(filename)
+        root = tree.getroot()
+        self.group_id = root.find(self.ns_tag('groupId')).text
+        self.artifact_id = root.find(self.ns_tag('artifactId')).text
+        self.version = root.find(self.ns_tag('version')).text
+        self.dependencies = [
+            self.build_dependency(dep)
+            for dep in root.find(self.ns_tag('dependencies'))
+        ]
