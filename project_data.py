@@ -2,6 +2,7 @@
 
 import edn_format
 import pprint
+import re
 import xml.etree.ElementTree as ET
 
 def slurp(filename):
@@ -84,8 +85,15 @@ class LeinProjectData(ProjectData):
         self.dependencies = self.extract_dependencies(data)
 
 class MvnProjectData(ProjectData):
+    ns_name = 'http://maven.apache.org/POM/4.0.0'
+    ns_pattern = re.escape('{{{}}}'.format(ns_name))
+    ns_regex = re.compile('^{}'.format(ns_pattern))
+
     def ns_tag(self, tag):
-        return str(ET.QName('http://maven.apache.org/POM/4.0.0', tag))
+        return str(ET.QName(self.ns_name, tag))
+
+    def tag_name(self, tag):
+        return self.ns_regex.sub('', tag)
 
     def build_dependency(self, dep):
         group_id = dep.find(self.ns_tag('groupId')).text
@@ -93,9 +101,19 @@ class MvnProjectData(ProjectData):
         version = dep.find(self.ns_tag('version')).text
         return Dependency(group_id, artifact_id, version)
 
+    def get_project_properties(self, root):
+        props = root.find(self.ns_tag('properties'))
+        props = [] if props is None else props
+        return {
+            self.tag_name(prop.tag):prop.text
+            for prop in props
+        }
+
     def __init__(self, filename):
         tree = ET.parse(filename)
         root = tree.getroot()
+        props = self.get_project_properties(root)
+        pprint.pprint(props)
         self.group_id = root.find(self.ns_tag('groupId')).text
         self.artifact_id = root.find(self.ns_tag('artifactId')).text
         self.version = root.find(self.ns_tag('version')).text
