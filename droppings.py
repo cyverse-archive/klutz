@@ -200,11 +200,38 @@ def info_for(proj):
 
     return proj_info
 
+def deps_satisfied(info, proj_names, build_set):
+    """Determines if the dependencies have been satisfied for a project."""
+    remaining_deps = [
+        dep for dep in info.dependencies
+        if (dep.group_id,dep.artifact_id) in proj_names
+        and not proj_names[(dep.group_id,dep.artifact_id)] in build_set
+    ]
+    return len(remaining_deps) == 0
+
+def generate_build_list(proj_info, proj_names):
+    """Generates the list that determines the build order for all of the
+    projects."""
+    build_list = []
+    while len(build_list) < len(proj_info):
+        build_list.extend(
+            [   name for name, info in proj_info.iteritems()
+                if not name in build_list
+                and deps_satisfied(info, proj_names, set(build_list))
+            ]
+        )
+    return build_list
+
 def build(cfg):
     """Builds all of the repositories in the list of repositories. 'cfg'
     is the object returned after parsing the yaml config file."""
     proj_info = {proj['name']:info_for(proj) for proj in cfg['projects']}
-    pprint.pprint(proj_info)
+    proj_names = {
+        (value.group_id,value.artifact_id):key
+        for key, value in proj_info.iteritems()
+    }
+    build_list = generate_build_list(proj_info, proj_names)
+    pprint.pprint(build_list)
 
 def main(options, cfg):
     """Contains the main logic of the application. 'options' is the
