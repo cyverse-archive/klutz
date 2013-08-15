@@ -201,3 +201,8 @@ projects:
     refspec: git@github.com:iPlantCollaborativeOpenSource/clockwork.git
     prefix: svc
     merge: *backend-merge
+
+  - name: de-base-services-pom
+    refspec: git@github.com:iPlantCollaborativeOpenSource/de-base-services-pom.git
+    prefix: svc
+    merge: *backend-merge
