@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 
 import edn_format
-import pprint
 import re
 import xml.etree.ElementTree as ET
 
@@ -95,29 +94,54 @@ class MvnProjectData(ProjectData):
     def tag_name(self, tag):
         return self.ns_regex.sub('', tag)
 
-    def build_dependency(self, dep):
-        group_id = dep.find(self.ns_tag('groupId')).text
-        artifact_id = dep.find(self.ns_tag('artifactId')).text
-        version = dep.find(self.ns_tag('version')).text
+    def replace_prop_placeholders(self, props, text):
+        return re.sub(
+            r'\$\{([^\}]+)\}',
+            lambda m: props[m.group(1)] if m.group(1) in props else m.group(0),
+            text
+        )
+
+    def build_dependency(self, props, dep):
+        group_id = self.replace_prop_placeholders(
+            props, dep.find(self.ns_tag('groupId')).text
+        )
+        artifact_id = self.replace_prop_placeholders(
+            props, dep.find(self.ns_tag('artifactId')).text
+        )
+        version = self.replace_prop_placeholders(
+            props, dep.find(self.ns_tag('version')).text
+        )
         return Dependency(group_id, artifact_id, version)
 
+    def find_tag(self, xml, tag):
+        return xml.find(self.ns_tag(tag))
+
     def get_project_properties(self, root):
-        props = root.find(self.ns_tag('properties'))
-        props = [] if props is None else props
-        return {
-            self.tag_name(prop.tag):prop.text
-            for prop in props
+        prop_elms = self.find_tag(root, 'properties')
+        prop_elms = [] if prop_elms is None else prop_elms
+        props = {
+            self.tag_name(prop_elm.tag):prop_elm.text
+            for prop_elm in prop_elms
         }
+        props['project.groupId'] = self.replace_prop_placeholders(
+            props, self.find_tag(root, 'groupId').text
+        )
+        props['project.artifactId'] = self.replace_prop_placeholders(
+            props, self.find_tag(root, 'artifactId').text
+        )
+        props['project.version'] = self.replace_prop_placeholders(
+            props, self.find_tag(root, 'version').text
+        )
+        return props
 
     def __init__(self, filename):
         tree = ET.parse(filename)
         root = tree.getroot()
         props = self.get_project_properties(root)
-        pprint.pprint(props)
-        self.group_id = root.find(self.ns_tag('groupId')).text
-        self.artifact_id = root.find(self.ns_tag('artifactId')).text
-        self.version = root.find(self.ns_tag('version')).text
+        self.group_id = props['project.groupId']
+        self.artifact_id = props['project.artifactId']
+        self.version = props['project.version']
         self.dependencies = [
-            self.build_dependency(dep)
-            for dep in root.find(self.ns_tag('dependencies'))
+            self.build_dependency(props, dep)
+            for dep in self.find_tag(root, 'dependencies')
         ]
