@@ -103,13 +103,13 @@ class MvnProjectData(ProjectData):
 
     def build_dependency(self, props, dep):
         group_id = self.replace_prop_placeholders(
-            props, dep.find(self.ns_tag('groupId')).text
+            props, self.find_tag(dep, 'groupId').text
         )
         artifact_id = self.replace_prop_placeholders(
-            props, dep.find(self.ns_tag('artifactId')).text
+            props, self.find_tag(dep, 'artifactId').text
         )
         version = self.replace_prop_placeholders(
-            props, dep.find(self.ns_tag('version')).text
+            props, self.find_tag(dep, 'version').text
         )
         return Dependency(group_id, artifact_id, version)
 
@@ -145,3 +145,6 @@ class MvnProjectData(ProjectData):
             self.build_dependency(props, dep)
             for dep in self.find_tag(root, 'dependencies')
         ]
+        parent_pom = self.find_tag(root, 'parent')
+        if parent_pom is not None:
+            self.dependencies.append(self.build_dependency(props, parent_pom))
