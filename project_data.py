@@ -64,6 +64,12 @@ class LeinProjectData(ProjectData):
                 return data[i + 1]
         raise DependenciesNotFoundException()
 
+    def find_plugins(self, data):
+        for i in range(0, len(data) - 1):
+            if str(data[i]) == ":plugins":
+                return data[i + 1]
+        return []
+
     def project_data_from_desc(self, dep):
         (group_id, artifact_id) = self.parse_descriptor(dep[0])
         version = dep[1]
@@ -72,7 +78,7 @@ class LeinProjectData(ProjectData):
     def extract_dependencies(self, data):
         return [
             self.project_data_from_desc(dep)
-            for dep in self.find_dependencies(data)
+            for dep in self.find_dependencies(data) + self.find_plugins(data)
         ]
 
     def __init__(self, filename):
