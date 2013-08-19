@@ -127,6 +127,11 @@ projects:
     prefix: svc
     merge: *backend-merge
 
+  - name: lein-iplant-cmdtar
+    refspec: git@github.com:iPlantCollaborativeOpenSource/lein-iplant-cmdtar.git
+    prefix: svc
+    merge: *backend-merge
+
   - name: lein-iplant-rpm
     refspec: git@github.com:iPlantCollaborativeOpenSource/lein-iplant-rpm.git
     prefix: svc
@@ -149,11 +154,6 @@ projects:
 
   - name: JEX
     refspec: git@github.com:iPlantCollaborativeOpenSource/JEX.git
-    prefix: svc
-    merge: *backend-merge
-
-  - name: Nibblonian
-    refspec: git@github.com:iPlantCollaborativeOpenSource/Nibblonian.git
     prefix: svc
     merge: *backend-merge
 
@@ -206,3 +206,13 @@ projects:
     refspec: git@github.com:iPlantCollaborativeOpenSource/de-base-services-pom.git
     prefix: svc
     merge: *backend-merge
+
+  - name: hibernatetoolkit
+    refspec: git@github.com:iPlantCollaborativeOpenSource/hibernatetoolkit.git
+    prefix: svc
+    merge: *backend-merge
+
+  - name: clavin-java
+    refspec: git@github.com:iPlantCollaborativeOpenSource/clavin-java.git
+    prefix: svc
+    merge: *frontend-merge
