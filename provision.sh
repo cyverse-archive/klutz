@@ -23,5 +23,5 @@ install-lein () {
 
 apt-get update
 apt-get install -y openjdk-6-jre-headless git curl screen python python-pip vim
-pip install pyyaml edn_format
+pip install pyyaml clojure-py
 install-lein

@@ -1,8 +1,12 @@
 #!/usr/bin/env python
 
-import edn_format
 import re
 import xml.etree.ElementTree as ET
+
+from clojure.lang.fileseq import StringReader
+from clojure.lang.cljkeyword import Keyword
+from clojure.lang.lispreader import read
+from clojure.lang.symbol import Symbol
 
 def slurp(filename):
     with open(filename, 'r') as f:
@@ -14,6 +18,14 @@ class ProjectDataException(Exception):
 
 class InvalidLeinProjectException(ProjectDataException):
     """Thrown when an invalid leiningen project file is detected."""
+    pass
+
+class InvalidLeinProjectDescriptor(ProjectDataException):
+    """Thrown when a project descriptor is not a symbol."""
+    pass
+
+class InvalidLeinDependencyDescriptor(ProjectDataException):
+    """Thrown when a dependency descriptor is not a symbol."""
     pass
 
 class DependenciesNotFoundException(ProjectDataException):
@@ -58,6 +70,16 @@ class LeinProjectData(ProjectData):
         else:
             return elms[0], elms[1]
 
+    def parse_project_descriptor(self, descriptor):
+        if type(descriptor) != Symbol:
+            raise InvalidLeinProjectDescriptor()
+        return self.parse_descriptor(descriptor)
+
+    def parse_dependency_descriptor(self, descriptor):
+        if type(descriptor) != Symbol:
+            raise InvalidLeinDependencyDescriptor()
+        return self.parse_descriptor(descriptor)
+
     def find_dependencies(self, data):
         for i in range(0, len(data) - 1):
             if str(data[i]) == ":dependencies":
@@ -71,21 +93,29 @@ class LeinProjectData(ProjectData):
         return []
 
     def project_data_from_desc(self, dep):
-        (group_id, artifact_id) = self.parse_descriptor(dep[0])
+        (group_id, artifact_id) = self.parse_dependency_descriptor(dep[0])
         version = dep[1]
         return Dependency(group_id, artifact_id, version)
 
     def extract_dependencies(self, data):
-        return [
+        deps = [
             self.project_data_from_desc(dep)
-            for dep in self.find_dependencies(data) + self.find_plugins(data)
+            for dep in self.find_dependencies(data)
         ]
+        deps += [
+            self.project_data_from_desc(dep)
+            for dep in self.find_plugins(data)
+        ]
+        return deps
 
     def __init__(self, filename):
-        data = edn_format.loads(slurp(filename))
-        if (str(data[0]) != "defproject"):
+        EOF = object()
+        data = read(StringReader(slurp(filename)), False, EOF, True)
+        if (type(data[0]) != Symbol or str(data[0]) != "defproject"):
             raise InvalidLeinProjectException()
-        (self.group_id, self.artifact_id) = self.parse_descriptor(data[1])
+        (group_id, artifact_id) = self.parse_project_descriptor(data[1])
+        self.group_id = group_id
+        self.artifact_id = artifact_id
         self.version = data[2]
         self.dependencies = self.extract_dependencies(data)
 
