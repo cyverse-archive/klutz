@@ -109,12 +109,6 @@ projects:
     validate_version: false
     merge: *backend-merge
 
-  - name: CAS-Extensions
-    refspec: git@github.com:iPlantCollaborativeOpenSource/CAS-Extensions.git
-    prefix: svc
-    validate_version: false
-    merge: *backend-merge
-
   - name: clj-jargon
     refspec: git@github.com:iPlantCollaborativeOpenSource/clj-jargon.git
     prefix: svc
@@ -131,12 +125,6 @@ projects:
     refspec: git@github.com:iPlantCollaborativeOpenSource/de-persistence.git
     prefix: svc
     validate_version: true
-    merge: *backend-merge
-
-  - name: iplant-beanstalk
-    refspec: git@github.com:iPlantCollaborativeOpenSource/iplant-beanstalk.git
-    prefix: svc
-    validate_version: false
     merge: *backend-merge
 
   - name: iplant-clojure-commons
@@ -214,7 +202,7 @@ projects:
   - name: clj-cas
     refspec: git@github.com:iPlantCollaborativeOpenSource/clj-cas.git
     prefix: svc
-    validate_version: false
+    validate_version: true
     merge: *backend-merge
 
   - name: kifshare
@@ -256,5 +244,5 @@ projects:
   - name: clavin-java
     refspec: git@github.com:iPlantCollaborativeOpenSource/clavin-java.git
     prefix: svc
-    validate_version: false
+    validate_version: true
     merge: *frontend-merge
