@@ -10,209 +10,251 @@ projects:
   - name: de-webapp
     refspec: git@github.com:iPlantCollaborativeOpenSource/de-webapp.git
     prefix: ui
+    validate_version: false
     merge: *frontend-merge
 
   - name: broadcasters
     refspec: git@github.com:iPlantCollaborativeOpenSource/broadcasters.git
     prefix: ui
+    validate_version: true
     merge: *frontend-merge
 
   - name: ui-jsonutil-module
     refspec: git@github.com:iPlantCollaborativeOpenSource/jsonutil-module.git
     prefix: ui
+    validate_version: true
     merge: *frontend-merge
 
   - name: ui-resources-module
     refspec: git@github.com:iPlantCollaborativeOpenSource/ui-resources-module.git
     prefix: ui
+    validate_version: true
     merge: *frontend-merge
 
   - name: ui-de-common-module
     refspec: git@github.com:iPlantCollaborativeOpenSource/de-common-module.git
     prefix: ui
+    validate_version: true
     merge: *frontend-merge
 
   - name: ui-metadata-module
     refspec: git@github.com:iPlantCollaborativeOpenSource/ui-metadata-module.git
     prefix: ui
+    validate_version: true
     merge: *frontend-merge
 
   - name: ui-commons-module
     refspec: git@github.com:iPlantCollaborativeOpenSource/ui-commons-module.git
     prefix: ui
+    validate_version: true
     merge: *frontend-merge
 
   - name: ui-confluence-client-module
     refspec: git@github.com:iPlantCollaborativeOpenSource/confluence-client.git
     prefix: ui
+    validate_version: true
     merge: *frontend-merge
 
   - name: ui-disk-resource-module
     refspec: git@github.com:iPlantCollaborativeOpenSource/ui-disk-resource-module.git
     prefix: ui
+    validate_version: true
     merge: *frontend-merge
 
   - name: ui-applications-module
     refspec: git@github.com:iPlantCollaborativeOpenSource/ui-applications-module.git
     prefix: ui
+    validate_version: true
     merge: *frontend-merge
 
   - name: ui-apps-widgets-module
     refspec: git@github.com:iPlantCollaborativeOpenSource/ui-apps-widgets-module.git
     prefix: ui
+    validate_version: true
     merge: *frontend-merge
 
   - name: ui-apps-integration-module
     refspec: git@github.com:iPlantCollaborativeOpenSource/ui-apps-integration.git
     prefix: ui
+    validate_version: true
     merge: *frontend-merge
 
   - name: ui-pipeline-builder-module
     refspec: git@github.com:iPlantCollaborativeOpenSource/ui-pipeline-builder-module.git
     prefix: ui
+    validate_version: true
     merge: *frontend-merge
 
   - name: ui-pipelines-module
     refspec: git@github.com:iPlantCollaborativeOpenSource/ui-pipelines-module.git
     prefix: ui
+    validate_version: true
     merge: *frontend-merge
 
   - name: de-database-schema
     refspec: git@github.com:iPlantCollaborativeOpenSource/de-database-schema.git
     prefix: db
+    validate_version: false
     merge: *backend-merge
 
   - name: facepalm
     refspec: git@github.com:iPlantCollaborativeOpenSource/facepalm.git
     prefix: db
+    validate_version: false
     merge: *backend-merge
 
   - name: kameleon
     refspec: git@github.com:iPlantCollaborativeOpenSource/kameleon.git
     prefix: db
+    validate_version: false
     merge: *backend-merge
 
   - name: CAS-Extensions
     refspec: git@github.com:iPlantCollaborativeOpenSource/CAS-Extensions.git
     prefix: svc
+    validate_version: false
     merge: *backend-merge
 
   - name: clj-jargon
     refspec: git@github.com:iPlantCollaborativeOpenSource/clj-jargon.git
     prefix: svc
+    validate_version: false
     merge: *backend-merge
 
   - name: de-authn
     refspec: git@github.com:iPlantCollaborativeOpenSource/de-authn.git
     prefix: svc
+    validate_version: true
     merge: *backend-merge
 
   - name: de-persistence
     refspec: git@github.com:iPlantCollaborativeOpenSource/de-persistence.git
     prefix: svc
+    validate_version: true
     merge: *backend-merge
 
   - name: iplant-beanstalk
     refspec: git@github.com:iPlantCollaborativeOpenSource/iplant-beanstalk.git
     prefix: svc
+    validate_version: false
     merge: *backend-merge
 
   - name: iplant-clojure-commons
     refspec: git@github.com:iPlantCollaborativeOpenSource/iplant-clojure-commons.git
     prefix: svc
+    validate_version: false
     merge: *backend-merge
 
   - name: iplant-email
     refspec: git@github.com:iPlantCollaborativeOpenSource/iplant-email.git
     prefix: svc
+    validate_version: false
     merge: *backend-merge
 
   - name: lein-iplant-cmdtar
     refspec: git@github.com:iPlantCollaborativeOpenSource/lein-iplant-cmdtar.git
     prefix: svc
+    validate_version: false
     merge: *backend-merge
 
   - name: lein-iplant-rpm
     refspec: git@github.com:iPlantCollaborativeOpenSource/lein-iplant-rpm.git
     prefix: svc
+    validate_version: false
     merge: *backend-merge
 
   - name: metadactyl
     refspec: git@github.com:iPlantCollaborativeOpenSource/metadactyl.git
     prefix: svc
+    validate_version: true
     merge: *backend-merge
 
   - name: Conrad
     refspec: git@github.com:iPlantCollaborativeOpenSource/Conrad.git
     prefix: svc
+    validate_version: false
     merge: *backend-merge
 
   - name: Donkey
     refspec: git@github.com:iPlantCollaborativeOpenSource/Donkey.git
     prefix: svc
+    validate_version: false
     merge: *backend-merge
 
   - name: JEX
     refspec: git@github.com:iPlantCollaborativeOpenSource/JEX.git
     prefix: svc
+    validate_version: false
     merge: *backend-merge
 
   - name: NotificationAgent
     refspec: git@github.com:iPlantCollaborativeOpenSource/NotificationAgent.git
     prefix: svc
+    validate_version: false
     merge: *backend-merge
 
   - name: OSM
     refspec: git@github.com:iPlantCollaborativeOpenSource/OSM.git
     prefix: svc
+    validate_version: false
     merge: *backend-merge
 
   - name: Panopticon
     refspec: git@github.com:iPlantCollaborativeOpenSource/Panopticon.git
     prefix: svc
+    validate_version: false
     merge: *backend-merge
 
   - name: Scruffian
     refspec: git@github.com:iPlantCollaborativeOpenSource/Scruffian.git
     prefix: svc
+    validate_version: false
     merge: *backend-merge
 
   - name: clj-cas
     refspec: git@github.com:iPlantCollaborativeOpenSource/clj-cas.git
     prefix: svc
+    validate_version: false
     merge: *backend-merge
 
   - name: kifshare
     refspec: git@github.com:iPlantCollaborativeOpenSource/kifshare.git
     prefix: svc
+    validate_version: false
     merge: *backend-merge
 
   - name: metadactyl-clj
     refspec: git@github.com:iPlantCollaborativeOpenSource/metadactyl-clj.git
     prefix: svc
+    validate_version: false
     merge: *backend-merge
 
   - name: Infosquito
     refspec: git@github.com:iPlantCollaborativeOpenSource/Infosquito.git
     prefix: svc
+    validate_version: false
     merge: *backend-merge
 
   - name: clockwork
     refspec: git@github.com:iPlantCollaborativeOpenSource/clockwork.git
     prefix: svc
+    validate_version: false
     merge: *backend-merge
 
   - name: de-base-services-pom
     refspec: git@github.com:iPlantCollaborativeOpenSource/de-base-services-pom.git
     prefix: svc
+    validate_version: true
     merge: *backend-merge
 
   - name: hibernatetoolkit
     refspec: git@github.com:iPlantCollaborativeOpenSource/hibernatetoolkit.git
     prefix: svc
+    validate_version: true
     merge: *backend-merge
 
   - name: clavin-java
     refspec: git@github.com:iPlantCollaborativeOpenSource/clavin-java.git
     prefix: svc
+    validate_version: false
     merge: *frontend-merge

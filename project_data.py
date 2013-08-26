@@ -47,11 +47,13 @@ class Dependency(object):
         )
 
 class ProjectData(object):
-    def __init__(self, group_id, artifact_id, version, dependencies):
+    def __init__(self, group_id, artifact_id, version, dependencies,
+                 validate_version):
         self.group_id = group_id
         self.artifact_id = artifact_id
         self.version = version
         self.dependencies = dependencies
+        self.validate_version = validate_version
 
     def __str__(self):
         return str(
@@ -108,7 +110,7 @@ class LeinProjectData(ProjectData):
         ]
         return deps
 
-    def __init__(self, filename):
+    def __init__(self, filename, validate_version):
         EOF = object()
         data = read(StringReader(slurp(filename)), False, EOF, True)
         if (type(data[0]) != Symbol or str(data[0]) != "defproject"):
@@ -117,6 +119,7 @@ class LeinProjectData(ProjectData):
         self.group_id = group_id
         self.artifact_id = artifact_id
         self.version = data[2]
+        self.validate_version = validate_version
         self.dependencies = self.extract_dependencies(data)
 
 class MvnProjectData(ProjectData):
@@ -170,13 +173,14 @@ class MvnProjectData(ProjectData):
         )
         return props
 
-    def __init__(self, filename):
+    def __init__(self, filename, validate_version):
         tree = ET.parse(filename)
         root = tree.getroot()
         props = self.get_project_properties(root)
         self.group_id = props['project.groupId']
         self.artifact_id = props['project.artifactId']
         self.version = props['project.version']
+        self.validate_version = validate_version
         self.dependencies = [
             self.build_dependency(props, dep)
             for dep in self.find_tag(root, 'dependencies')

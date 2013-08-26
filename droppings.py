@@ -9,6 +9,11 @@ import project_data as pd
 
 import pprint
 
+class DependencyMismatchException(Exception):
+    """Thrown when the version number in a dependency doesn't match the version
+    number in the corresponding repository."""
+    pass
+
 def exec_cmd(cmd, good_status=0):
     """Executes the 'cmd' list and returns the return value. Exits on a
     non-zero exit status. Yes, that's evil and will probably change."""
@@ -189,16 +194,34 @@ def info_for(proj):
     first_dir = os.getcwd()
     os.chdir(proj_name)
 
+    validate_version = proj['validate_version']
     if os.path.exists('project.clj'):
-        proj_info = pd.LeinProjectData('project.clj')
+        proj_info = pd.LeinProjectData('project.clj', validate_version)
     elif os.path.exists('pom.xml'):
-        proj_info = pd.MvnProjectData('pom.xml')
+        proj_info = pd.MvnProjectData('pom.xml', validate_version)
     else:
-        proj_info = pd.ProjectData(proj_name, proj_name, '', [])
+        proj_info = pd.ProjectData(proj_name, proj_name, '', [],
+                                   validate_version)
 
     os.chdir(first_dir)
 
     return proj_info
+
+def validate_dependency_versions(proj_info, proj_names):
+    """Verifies that the versions for all project dependencies that correspond
+    to repositories being built match the version numbers in the repositories."""
+    for proj in proj_info.values():
+        for dep in proj.dependencies:
+            k = (dep.group_id, dep.artifact_id)
+            if k in proj_names:
+                dep_proj = proj_info[proj_names[k]]
+                if dep_proj.validate_version and dep.version != dep_proj.version:
+                    raise DependencyMismatchException(
+                        '{}/{}: {}/{} {} requested but {} provided'.format(
+                            proj.group_id, proj.artifact_id, dep.group_id,
+                            dep.artifact_id, dep.version, dep_proj.version
+                        )
+                    )
 
 def deps_satisfied(info, proj_names, build_set):
     """Determines if the dependencies have been satisfied for a project."""
@@ -230,6 +253,7 @@ def build(cfg):
         (value.group_id,value.artifact_id):key
         for key, value in proj_info.iteritems()
     }
+    validate_dependency_versions(proj_info, proj_names)
     build_list = generate_build_list(proj_info, proj_names)
     pprint.pprint(build_list)
 
