@@ -7,7 +7,7 @@ import yaml
 from subprocess import call
 import project_data as pd
 
-import pprint
+JAVA_HOME = '/usr/lib/jvm/java-6-openjdk-amd64/'
 
 class DependencyMismatchException(Exception):
     """Thrown when the version number in a dependency doesn't match the version
@@ -195,13 +195,14 @@ def info_for(proj):
     os.chdir(proj_name)
 
     validate_version = proj['validate_version']
+    build = proj['build']
     if os.path.exists('project.clj'):
-        proj_info = pd.LeinProjectData('project.clj', validate_version)
+        proj_info = pd.LeinProjectData('project.clj', validate_version, build)
     elif os.path.exists('pom.xml'):
-        proj_info = pd.MvnProjectData('pom.xml', validate_version)
+        proj_info = pd.MvnProjectData('pom.xml', validate_version, build)
     else:
         proj_info = pd.ProjectData(proj_name, proj_name, '', [],
-                                   validate_version)
+                                   validate_version, build)
 
     os.chdir(first_dir)
 
@@ -245,6 +246,19 @@ def generate_build_list(proj_info, proj_names):
         )
     return build_list
 
+def build_project(proj_name, proj):
+    """Builds a project."""
+    print '='*80
+    print 'building {}...'.format(proj_name)
+
+    first_dir = os.getcwd()
+    os.chdir(proj_name)
+
+    for cmd in proj.build:
+        exec_cmd(cmd)
+
+    os.chdir(first_dir)
+
 def build(cfg):
     """Builds all of the repositories in the list of repositories. 'cfg'
     is the object returned after parsing the yaml config file."""
@@ -255,12 +269,14 @@ def build(cfg):
     }
     validate_dependency_versions(proj_info, proj_names)
     build_list = generate_build_list(proj_info, proj_names)
-    pprint.pprint(build_list)
+    for proj_name in build_list:
+        build_project(proj_name, proj_info[proj_name])
 
 def main(options, cfg):
     """Contains the main logic of the application. 'options' is the
     object returned by parse_command_line() and 'cfg' should be the
     object returned after parsing the yaml config file."""
+    os.environ['JAVA_HOME'] = JAVA_HOME
     symlink_key_file(keyfile=options.keyfile)
     merge_and_tag(options, cfg)
     if options.build:

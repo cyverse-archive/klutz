@@ -16,12 +16,15 @@ install-lein () {
 
         echo "Running lein for the first time"
         lein --help
+
+        echo "Running lein as vagrant for the first time"
+        su -l vagrant -c 'lein --help'
     else
         echo "lein is already installed at /usr/local/bin/lein"
     fi
 }
 
 apt-get update
-apt-get install -y openjdk-6-jre-headless git curl screen python python-pip vim
+apt-get install -y openjdk-6-jdk git curl screen python python-pip vim maven
 pip install pyyaml clojure-py
 install-lein
