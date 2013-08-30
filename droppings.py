@@ -6,6 +6,9 @@ import argparse
 import yaml
 from subprocess import call
 import project_data as pd
+from multiprocessing import Process
+
+import pprint
 
 JAVA_HOME = '/usr/lib/jvm/java-6-openjdk-amd64/'
 
@@ -14,13 +17,13 @@ class DependencyMismatchException(Exception):
     number in the corresponding repository."""
     pass
 
-def exec_cmd(cmd, good_status=0):
+def exec_cmd(cmd, good_status=0, stdout=sys.__stdout__, stderr=sys.__stderr__):
     """Executes the 'cmd' list and returns the return value. Exits on a
     non-zero exit status. Yes, that's evil and will probably change."""
-    print "-"*80
+    print >> stdout, "-"*80
     printable_cmd = " ".join(cmd)
-    print "Command: " + printable_cmd
-    status = call(cmd, stdout=sys.__stdout__, stderr=sys.__stderr__)
+    print >> stdout, "Command: " + printable_cmd
+    status = call(cmd, stdout=stdout, stderr=stderr)
 
     if status != good_status:
         raise IOError(
@@ -208,6 +211,14 @@ def info_for(proj):
 
     return proj_info
 
+def build_proj_name_dictionary(proj_info):
+    """Builds a dictionary that maps group IDs and artifact IDs to project
+    names."""
+    return {
+        (value.group_id,value.artifact_id):key
+        for key, value in proj_info.iteritems()
+    }
+
 def validate_dependency_versions(proj_info, proj_names):
     """Verifies that the versions for all project dependencies that correspond
     to repositories being built match the version numbers in the repositories."""
@@ -236,41 +247,70 @@ def deps_satisfied(info, proj_names, build_set):
 def generate_build_list(proj_info, proj_names):
     """Generates the list that determines the build order for all of the
     projects."""
+    selected_projects = set()
     build_list = []
-    while len(build_list) < len(proj_info):
-        build_list.extend(
-            [   name for name, info in proj_info.iteritems()
-                if not name in build_list
-                and deps_satisfied(info, proj_names, set(build_list))
-            ]
-        )
+    while len(selected_projects) < len(proj_info):
+        build_group = [
+            name for name, info in proj_info.iteritems()
+            if not name in selected_projects
+            and deps_satisfied(info, proj_names, selected_projects)
+        ]
+        for project in build_group:
+            selected_projects.add(project)
+        build_list.append(build_group)
     return build_list
 
 def build_project(proj_name, proj):
     """Builds a project."""
+    outfile = '{}.out'.format(proj_name)
+    errfile = '{}.err'.format(proj_name)
+
+    with open(outfile, 'w') as out, open(errfile, 'w') as err:
+        first_dir = os.getcwd()
+        os.chdir(proj_name)
+
+
+        for cmd in proj.build:
+            exec_cmd(cmd, stdout=out, stderr=err)
+
+        os.chdir(first_dir)
+
+def start_build(proj_name, proj):
+    """Starts a project build in a subprocess."""
     print '='*80
     print 'building {}...'.format(proj_name)
+    proc = Process(target = build_project, args=(proj_name, proj))
+    proc.start()
+    return proc
 
-    first_dir = os.getcwd()
-    os.chdir(proj_name)
-
-    for cmd in proj.build:
-        exec_cmd(cmd)
-
-    os.chdir(first_dir)
+def build_projects_in_group(proj_info, build_group):
+    """Builds all of the projects in a group of projects. It must be possible
+    to build all of the projects in the group simultaneously."""
+    build_recs = [
+        (proj_name, start_build(proj_name, proj_info[proj_name]))
+        for proj_name in build_group
+    ]
+    for proj_name, proc in build_recs:
+        proc.join()
+    build_failed = False
+    for proj_name, proc in build_recs:
+        if proc.exitcode != 0:
+            print >> sys.stderr, '** Unable to build {}'.format(proj_name)
+            build_failed = True
+    if build_failed:
+        msg = '** Some builds failed. Please review the output files.'
+        print >> sys.stderr, msg
+        sys.exit(1)
 
 def build(cfg):
     """Builds all of the repositories in the list of repositories. 'cfg'
     is the object returned after parsing the yaml config file."""
     proj_info = {proj['name']:info_for(proj) for proj in cfg['projects']}
-    proj_names = {
-        (value.group_id,value.artifact_id):key
-        for key, value in proj_info.iteritems()
-    }
+    proj_names = build_proj_name_dictionary(proj_info)
     validate_dependency_versions(proj_info, proj_names)
     build_list = generate_build_list(proj_info, proj_names)
-    for proj_name in build_list:
-        build_project(proj_name, proj_info[proj_name])
+    for build_group in build_list:
+        build_projects_in_group(proj_info, build_group)
 
 def main(options, cfg):
     """Contains the main logic of the application. 'options' is the

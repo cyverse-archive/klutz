@@ -7,21 +7,25 @@ frontend-merge: &frontend-merge
   to: STABLE
 
 mvn: &mvn
-  - [mvn,  clean,  install]
+  - [mvn, -B, clean]
+  - [mvn, -B, install]
 
 build-sh: &build-sh
   - [./build.sh]
 
 lein: &lein-install
   - [lein, clean]
+  - [lein, deps]
   - [lein, install]
 
 lein-uberjar: &lein-uberjar
   - [lein, clean]
+  - [lein, deps]
   - [lein, uberjar]
 
 lein-iplant-cmdtar: &lein-iplant-cmdtar
   - [lein, clean]
+  - [lein, deps]
   - [lein, iplant-cmdtar]
 
 projects:
