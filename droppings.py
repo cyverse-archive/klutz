@@ -199,13 +199,15 @@ def info_for(proj):
 
     validate_version = proj['validate_version']
     build = proj['build']
+    deps = proj['deps'] if 'deps' in proj else []
     if os.path.exists('project.clj'):
-        proj_info = pd.LeinProjectData('project.clj', validate_version, build)
+        proj_info = pd.LeinProjectData('project.clj', validate_version, build,
+                                       deps)
     elif os.path.exists('pom.xml'):
-        proj_info = pd.MvnProjectData('pom.xml', validate_version, build)
+        proj_info = pd.MvnProjectData('pom.xml', validate_version, build, deps)
     else:
         proj_info = pd.ProjectData(proj_name, proj_name, '', [],
-                                   validate_version, build)
+                                   validate_version, build, deps)
 
     os.chdir(first_dir)
 
@@ -269,7 +271,6 @@ def build_project(proj_name, proj):
         first_dir = os.getcwd()
         os.chdir(proj_name)
 
-
         for cmd in proj.build:
             exec_cmd(cmd, stdout=out, stderr=err)
 
@@ -283,9 +284,23 @@ def start_build(proj_name, proj):
     proc.start()
     return proc
 
+def resolve_dependencies(proj_name, proj):
+    """Resolves dependencies for a project."""
+    print '='*80
+    print 'resolving dependencies for {}'.format(proj_name)
+    first_dir = os.getcwd()
+    os.chdir(proj_name)
+
+    for cmd in proj.resolve_deps:
+        exec_cmd(cmd)
+
+    os.chdir(first_dir)
+
 def build_projects_in_group(proj_info, build_group):
     """Builds all of the projects in a group of projects. It must be possible
     to build all of the projects in the group simultaneously."""
+    for proj_name in build_group:
+        resolve_dependencies(proj_name, proj_info[proj_name])
     build_recs = [
         (proj_name, start_build(proj_name, proj_info[proj_name]))
         for proj_name in build_group

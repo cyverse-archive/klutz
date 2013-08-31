@@ -6,14 +6,20 @@ frontend-merge: &frontend-merge
   from: master
   to: STABLE
 
-mvn: &mvn
+mvn-deps: &mvn-deps
+  - [mvn, "dependency:go-offline"]
+
+mvn-build: &mvn-build
   - [mvn, -B, clean]
   - [mvn, -B, install]
 
 build-sh: &build-sh
   - [./build.sh]
 
-lein: &lein-install
+lein-deps: &lein-deps
+  - [lein, deps]
+
+lein-install: &lein-install
   - [lein, clean]
   - [lein, deps]
   - [lein, install]
@@ -34,98 +40,112 @@ projects:
     prefix: ui
     validate_version: false
     merge: *frontend-merge
-    build: *mvn
+    deps: *mvn-deps
+    build: *mvn-build
 
   - name: broadcasters
     refspec: git@github.com:iPlantCollaborativeOpenSource/broadcasters.git
     prefix: ui
     validate_version: true
     merge: *frontend-merge
-    build: *mvn
+    deps: *mvn-deps
+    build: *mvn-build
 
   - name: ui-jsonutil-module
     refspec: git@github.com:iPlantCollaborativeOpenSource/jsonutil-module.git
     prefix: ui
     validate_version: true
     merge: *frontend-merge
-    build: *mvn
+    deps: *mvn-deps
+    build: *mvn-build
 
   - name: ui-resources-module
     refspec: git@github.com:iPlantCollaborativeOpenSource/ui-resources-module.git
     prefix: ui
     validate_version: true
     merge: *frontend-merge
-    build: *mvn
+    deps: *mvn-deps
+    build: *mvn-build
 
   - name: ui-de-common-module
     refspec: git@github.com:iPlantCollaborativeOpenSource/de-common-module.git
     prefix: ui
     validate_version: true
     merge: *frontend-merge
-    build: *mvn
+    deps: *mvn-deps
+    build: *mvn-build
 
   - name: ui-metadata-module
     refspec: git@github.com:iPlantCollaborativeOpenSource/ui-metadata-module.git
     prefix: ui
     validate_version: true
     merge: *frontend-merge
-    build: *mvn
+    deps: *mvn-deps
+    build: *mvn-build
 
   - name: ui-commons-module
     refspec: git@github.com:iPlantCollaborativeOpenSource/ui-commons-module.git
     prefix: ui
     validate_version: true
     merge: *frontend-merge
-    build: *mvn
+    deps: *mvn-deps
+    build: *mvn-build
 
   - name: ui-confluence-client-module
     refspec: git@github.com:iPlantCollaborativeOpenSource/confluence-client.git
     prefix: ui
     validate_version: true
     merge: *frontend-merge
-    build: *mvn
+    deps: *mvn-deps
+    build: *mvn-build
 
   - name: ui-disk-resource-module
     refspec: git@github.com:iPlantCollaborativeOpenSource/ui-disk-resource-module.git
     prefix: ui
     validate_version: true
     merge: *frontend-merge
-    build: *mvn
+    deps: *mvn-deps
+    build: *mvn-build
 
   - name: ui-applications-module
     refspec: git@github.com:iPlantCollaborativeOpenSource/ui-applications-module.git
     prefix: ui
     validate_version: true
     merge: *frontend-merge
-    build: *mvn
+    deps: *mvn-deps
+    build: *mvn-build
 
   - name: ui-apps-widgets-module
     refspec: git@github.com:iPlantCollaborativeOpenSource/ui-apps-widgets-module.git
     prefix: ui
     validate_version: true
     merge: *frontend-merge
-    build: *mvn
+    deps: *mvn-deps
+    build: *mvn-build
 
   - name: ui-apps-integration-module
     refspec: git@github.com:iPlantCollaborativeOpenSource/ui-apps-integration.git
     prefix: ui
     validate_version: true
     merge: *frontend-merge
-    build: *mvn
+    deps: *mvn-deps
+    build: *mvn-build
 
   - name: ui-pipeline-builder-module
     refspec: git@github.com:iPlantCollaborativeOpenSource/ui-pipeline-builder-module.git
     prefix: ui
     validate_version: true
     merge: *frontend-merge
-    build: *mvn
+    deps: *mvn-deps
+    build: *mvn-build
 
   - name: ui-pipelines-module
     refspec: git@github.com:iPlantCollaborativeOpenSource/ui-pipelines-module.git
     prefix: ui
     validate_version: true
     merge: *frontend-merge
-    build: *mvn
+    deps: *mvn-deps
+    build: *mvn-build
 
   - name: de-database-schema
     refspec: git@github.com:iPlantCollaborativeOpenSource/de-database-schema.git
@@ -139,6 +159,7 @@ projects:
     prefix: db
     validate_version: false
     merge: *backend-merge
+    deps: *lein-deps
     build: *lein-iplant-cmdtar
 
   - name: kameleon
@@ -146,6 +167,7 @@ projects:
     prefix: db
     validate_version: false
     merge: *backend-merge
+    deps: *lein-deps
     build: *lein-install
 
   - name: clj-jargon
@@ -153,6 +175,7 @@ projects:
     prefix: svc
     validate_version: false
     merge: *backend-merge
+    deps: *lein-deps
     build: *lein-install
 
   - name: de-authn
@@ -160,20 +183,23 @@ projects:
     prefix: svc
     validate_version: true
     merge: *backend-merge
-    build: *mvn
+    deps: *mvn-deps
+    build: *mvn-build
 
   - name: de-persistence
     refspec: git@github.com:iPlantCollaborativeOpenSource/de-persistence.git
     prefix: svc
     validate_version: true
     merge: *backend-merge
-    build: *mvn
+    deps: *mvn-deps
+    build: *mvn-build
 
   - name: iplant-clojure-commons
     refspec: git@github.com:iPlantCollaborativeOpenSource/iplant-clojure-commons.git
     prefix: svc
     validate_version: false
     merge: *backend-merge
+    deps: *lein-deps
     build: *lein-install
 
   - name: iplant-email
@@ -181,6 +207,7 @@ projects:
     prefix: svc
     validate_version: false
     merge: *backend-merge
+    deps: *lein-deps
     build: *lein-uberjar
 
   - name: lein-iplant-cmdtar
@@ -188,6 +215,7 @@ projects:
     prefix: svc
     validate_version: false
     merge: *backend-merge
+    deps: *lein-deps
     build: *lein-install
 
   - name: lein-iplant-rpm
@@ -195,6 +223,7 @@ projects:
     prefix: svc
     validate_version: false
     merge: *backend-merge
+    deps: *lein-deps
     build: *lein-install
 
   - name: metadactyl
@@ -202,13 +231,15 @@ projects:
     prefix: svc
     validate_version: true
     merge: *backend-merge
-    build: *mvn
+    deps: *mvn-deps
+    build: *mvn-build
 
   - name: Conrad
     refspec: git@github.com:iPlantCollaborativeOpenSource/Conrad.git
     prefix: svc
     validate_version: false
     merge: *backend-merge
+    deps: *lein-deps
     build: *lein-uberjar
 
   - name: Donkey
@@ -216,6 +247,7 @@ projects:
     prefix: svc
     validate_version: false
     merge: *backend-merge
+    deps: *lein-deps
     build: *lein-uberjar
 
   - name: JEX
@@ -223,6 +255,7 @@ projects:
     prefix: svc
     validate_version: false
     merge: *backend-merge
+    deps: *lein-deps
     build: *lein-uberjar
 
   - name: NotificationAgent
@@ -230,6 +263,7 @@ projects:
     prefix: svc
     validate_version: false
     merge: *backend-merge
+    deps: *lein-deps
     build: *lein-uberjar
 
   - name: OSM
@@ -237,6 +271,7 @@ projects:
     prefix: svc
     validate_version: false
     merge: *backend-merge
+    deps: *lein-deps
     build: *lein-uberjar
 
   - name: Panopticon
@@ -244,6 +279,7 @@ projects:
     prefix: svc
     validate_version: false
     merge: *backend-merge
+    deps: *lein-deps
     build: *lein-uberjar
 
   - name: Scruffian
@@ -251,6 +287,7 @@ projects:
     prefix: svc
     validate_version: false
     merge: *backend-merge
+    deps: *lein-deps
     build: *lein-uberjar
 
   - name: clj-cas
@@ -258,6 +295,7 @@ projects:
     prefix: svc
     validate_version: true
     merge: *backend-merge
+    deps: *lein-deps
     build: *lein-install
 
   - name: kifshare
@@ -265,6 +303,7 @@ projects:
     prefix: svc
     validate_version: false
     merge: *backend-merge
+    deps: *lein-deps
     build: *lein-install
 
   - name: metadactyl-clj
@@ -272,6 +311,7 @@ projects:
     prefix: svc
     validate_version: false
     merge: *backend-merge
+    deps: *lein-deps
     build: *lein-uberjar
 
   - name: clockwork
@@ -279,6 +319,7 @@ projects:
     prefix: svc
     validate_version: false
     merge: *backend-merge
+    deps: *lein-deps
     build: *lein-uberjar
 
   - name: de-base-services-pom
@@ -286,18 +327,21 @@ projects:
     prefix: svc
     validate_version: true
     merge: *backend-merge
-    build: *mvn
+    deps: *mvn-deps
+    build: *mvn-build
 
   - name: hibernatetoolkit
     refspec: git@github.com:iPlantCollaborativeOpenSource/hibernatetoolkit.git
     prefix: svc
     validate_version: true
     merge: *backend-merge
-    build: *mvn
+    deps: *mvn-deps
+    build: *mvn-build
 
   - name: clavin-java
     refspec: git@github.com:iPlantCollaborativeOpenSource/clavin-java.git
     prefix: svc
     validate_version: true
     merge: *frontend-merge
-    build: *mvn
+    deps: *mvn-deps
+    build: *mvn-build

@@ -48,13 +48,14 @@ class Dependency(object):
 
 class ProjectData(object):
     def __init__(self, group_id, artifact_id, version, dependencies,
-                 validate_version, build):
+                 validate_version, build, resolve_deps):
         self.group_id = group_id
         self.artifact_id = artifact_id
         self.version = version
         self.dependencies = dependencies
         self.validate_version = validate_version
         self.build = build
+        self.resolve_deps = resolve_deps
 
     def __str__(self):
         return str(
@@ -111,7 +112,7 @@ class LeinProjectData(ProjectData):
         ]
         return deps
 
-    def __init__(self, filename, validate_version, build):
+    def __init__(self, filename, validate_version, build, resolve_deps):
         EOF = object()
         data = read(StringReader(slurp(filename)), False, EOF, True)
         if (type(data[0]) != Symbol or str(data[0]) != "defproject"):
@@ -123,6 +124,7 @@ class LeinProjectData(ProjectData):
         self.validate_version = validate_version
         self.dependencies = self.extract_dependencies(data)
         self.build = build
+        self.resolve_deps = resolve_deps
 
 class MvnProjectData(ProjectData):
     ns_name = 'http://maven.apache.org/POM/4.0.0'
@@ -175,7 +177,7 @@ class MvnProjectData(ProjectData):
         )
         return props
 
-    def __init__(self, filename, validate_version, build):
+    def __init__(self, filename, validate_version, build, resolve_deps):
         tree = ET.parse(filename)
         root = tree.getroot()
         props = self.get_project_properties(root)
@@ -188,6 +190,7 @@ class MvnProjectData(ProjectData):
             for dep in self.find_tag(root, 'dependencies')
         ]
         self.build = build
+        self.resolve_deps = resolve_deps
         parent_pom = self.find_tag(root, 'parent')
         if parent_pom is not None:
             self.dependencies.append(self.build_dependency(props, parent_pom))
