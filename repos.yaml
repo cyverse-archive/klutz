@@ -345,3 +345,51 @@ projects:
     merge: *frontend-merge
     deps: *mvn-deps
     build: *mvn-build
+
+  - name: mescal
+    refspec: git@github.com:iPlantCollaborativeOpenSource/mescal.git
+    prefix: svc
+    validate_version: true
+    merge: *backend-merge
+    deps: *lein-deps
+    build: *lein-install
+
+  - name: clj-icat-direct
+    refspec: git@github.com:iPlantCollaborativeOpenSource/clj-icat-direct.git
+    prefix: svc
+    validate_version: true
+    merge: *backend-merge
+    deps: *lein-deps
+    build: *lein-install
+
+  - name: Clavin
+    refspec: git@github.com:iPlantCollaborativeOpenSource/Clavin.git
+    prefix: svc
+    validate_version: true
+    merge: *backend-merge
+    deps: *lein-deps
+    build: *lein-uberjar
+
+  - name: deliminator
+    refspec: git@github.com:iPlantCollaborativeOpenSource/deliminator.git
+    prefix: svc
+    validate_version: true
+    merge: *backend-merge
+    deps: *lein-deps
+    build: *lein-install
+
+  - name: heuristomancer
+    refspec: git@github.com:iPlantCollaborativeOpenSource/heuristomancer.git
+    prefix: svc
+    validate_version: true
+    merge: *backend-merge
+    deps: *lein-deps
+    build: *lein-install
+
+  - name: notification-db
+    refspec: git@github.com:iPlantCollaborativeOpenSource/notification-db.git
+    prefix: svc
+    validate_version: true
+    merge: *backend-merge
+    build: *build-sh
+
