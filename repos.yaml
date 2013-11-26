@@ -43,14 +43,6 @@ projects:
     deps: *mvn-deps
     build: *mvn-build
 
-  - name: broadcasters
-    refspec: git@github.com:iPlantCollaborativeOpenSource/broadcasters.git
-    prefix: ui
-    validate_version: true
-    merge: *frontend-merge
-    deps: *mvn-deps
-    build: *mvn-build
-
   - name: ui-jsonutil-module
     refspec: git@github.com:iPlantCollaborativeOpenSource/jsonutil-module.git
     prefix: ui
@@ -69,14 +61,6 @@ projects:
 
   - name: ui-de-common-module
     refspec: git@github.com:iPlantCollaborativeOpenSource/de-common-module.git
-    prefix: ui
-    validate_version: true
-    merge: *frontend-merge
-    deps: *mvn-deps
-    build: *mvn-build
-
-  - name: ui-metadata-module
-    refspec: git@github.com:iPlantCollaborativeOpenSource/ui-metadata-module.git
     prefix: ui
     validate_version: true
     merge: *frontend-merge
@@ -282,14 +266,6 @@ projects:
     deps: *lein-deps
     build: *lein-uberjar
 
-  - name: Scruffian
-    refspec: git@github.com:iPlantCollaborativeOpenSource/Scruffian.git
-    prefix: svc
-    validate_version: false
-    merge: *backend-merge
-    deps: *lein-deps
-    build: *lein-uberjar
-
   - name: clj-cas
     refspec: git@github.com:iPlantCollaborativeOpenSource/clj-cas.git
     prefix: svc
@@ -392,4 +368,3 @@ projects:
     validate_version: true
     merge: *backend-merge
     build: *build-sh
-
